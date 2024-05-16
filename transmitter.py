@@ -17,7 +17,7 @@ class Transmitter:
         """
         self.bit_string_producer = BitStringProducer(V, T)
 
-    def transmit(self, x_range=(0, 10), num_points=1000):
+    def transmit(self, x_range=(0, 1e-5), num_points=1000):
         """
         Generates and transmits the bit string signal.
 
@@ -31,3 +31,4 @@ class Transmitter:
         x = np.linspace(x_range[0], x_range[1], num_points)
         transmitted_signal = self.bit_string_producer(x)
         return transmitted_signal
+
