@@ -15,7 +15,7 @@ def simulate(V, T, signal_length=1000, start=0, end=1e-5):
     transmitted_signal = transmitter.transmit(x_range=(start, end), num_points=signal_length)
 
     # Receive the noisy signal and sample it
-    received_signal, noisy_signal = receiver.receive_and_sample(transmitted_signal, num_points=signal_length)
+    received_signal, noisy_signal = receiver.receive_and_sample(transmitted_signal)
 
     # Calculate the noise signal
     noise_signal = noisy_signal - transmitted_signal
@@ -202,27 +202,18 @@ def plot_without_using_fft(V, T, signal_length, start, end):
     plt.show()
 
 def main():
+    # Global variables
     V = 5  # Voltage level
     bit_rate = 1e6  # Bit rate in bits per second
     T = 2 / bit_rate  # Calculate the period T from the bit rate
     signal_length = 1000
     start = 0
     end = 1e-5
+    transmitted_signal, received_signal, noise_signal, noisy_signal = simulate(V, T, signal_length=signal_length, start=start, end=end)
+    plot_end_to_end_simulation(transmitted_signal, received_signal, noise_signal, noisy_signal, signal_length, start, end)
+    plot_error_for_v()
     plot_with_using_fft(V, T, signal_length=signal_length, start=start, end=end)
     plot_without_using_fft(V, T, signal_length=signal_length, start=start, end=end)
-
-
-# def main():
-#     # Global variables
-#     V = 5  # Voltage level
-#     bit_rate = 1e6  # Bit rate in bits per second
-#     T = 2 / bit_rate  # Calculate the period T from the bit rate
-#     signal_length = 1000
-#     start = 0
-#     end = 1e-5
-#     transmitted_signal, received_signal, noise_signal, noisy_signal = simulate(V, bit_rate, T, signal_length, start, end)
-#     plot_end_to_end_simulation(transmitted_signal, received_signal, noise_signal, noisy_signal, signal_length, start, end)
-#     plot_error_for_v()
 
 if __name__ == "__main__":
     main()
