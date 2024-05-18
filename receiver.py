@@ -26,7 +26,7 @@ class Receiver:
         points_per_period = n * self.T / x_range / 2  # Calculate the number of points per period
         return points_per_period
 
-    def receive_and_sample(self, transmitted_signal, num_points):
+    def receive_and_sample(self, transmitted_signal):
         """
         Receives the signal, samples it at the middle of each bit interval, and reconstructs the original transmitted signal.
         Also adds Gaussian white noise to the transmitted signal to obtain the noisy signal.
