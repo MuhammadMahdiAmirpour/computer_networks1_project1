@@ -7,7 +7,7 @@ from receiver import Receiver
 from transmitter import Transmitter
 
 
-def init_run_normal(voltage, interval, signal_length=1000, start=0, end=1e-5):
+def init_run_normal(voltage, interval, signal_length, start, end):
     # Create instances of Transmitter ,Receiver and CommunicationChannel
     transmitter = Transmitter(voltage, interval, np.linspace(start, end, signal_length))
     receiver = Receiver(voltage, interval, np.linspace(start, end, signal_length))
@@ -16,8 +16,8 @@ def init_run_normal(voltage, interval, signal_length=1000, start=0, end=1e-5):
     return transmitter, receiver, communication_channel
 
 
-def init_run_limited_bandwidth_fft(voltage: float, interval: float, first_frequency_component: int, signal_length: int = 1000,
-                                   start: float = 0, end: float = 1e-5):
+def init_run_limited_bandwidth_fft(voltage: float, interval: float, first_frequency_component: int, signal_length: int,
+                                   start: float, end: float):
     transmitter = Transmitter(voltage, interval, np.linspace(start, end, signal_length))
     receiver = Receiver(voltage, interval, np.linspace(start, end, signal_length))
     communication_channel = CommunicationChannel(transmitter, receiver)
@@ -26,8 +26,8 @@ def init_run_limited_bandwidth_fft(voltage: float, interval: float, first_freque
     return transmitter, receiver, communication_channel, limited_bandwidth_signal
 
 
-def init_run_limited_bandwidth_no_fft(voltage, interval, first_frequency_component, signal_length=1000, start: float = 0,
-                                      end: float = 1e-5):
+def init_run_limited_bandwidth_no_fft(voltage, interval, first_frequency_component, signal_length, start: float,
+                                      end: float):
     transmitter = Transmitter(voltage, interval, np.linspace(start, end, signal_length))
     receiver = Receiver(voltage, interval, np.linspace(start, end, signal_length))
     communication_channel = CommunicationChannel(transmitter, receiver)
@@ -36,7 +36,7 @@ def init_run_limited_bandwidth_no_fft(voltage, interval, first_frequency_compone
     return transmitter, receiver, communication_channel, limited_bandwidth_signal
 
 
-def generate_transmit_receive_signal(voltage, interval, signal_length=1000, start=0, end=1e-5):
+def generate_transmit_receive_signal(voltage, interval, signal_length, start, end):
     transmitter, receiver, communication_channel = (
         init_run_normal(voltage, interval, signal_length=signal_length, start=start, end=end))
     received_signal, noisy_signal = receiver.process_signal()
@@ -49,12 +49,10 @@ def generate_transmit_receive_signal(voltage, interval, signal_length=1000, star
     return transmitted_signal, received_signal, noise_signal, noisy_signal
 
 
-def plot_end_to_end_simulation(transmitted_signal, received_signal, noise_signal, noisy_signal, signal_length, start,
-                               end):
+def plot_end_to_end_simulation(transmitted_signal, received_signal, noise_signal,
+                               noisy_signal, signal_length, start, end):
     # Plot each signal in separate axes
     x = np.linspace(start, end, signal_length)
-    num_bits = len(received_signal)
-    x_noise = np.linspace(start, end, len(noise_signal))
 
     _, axs = plt.subplots(4, 1, figsize=(10, 8), sharex=True)
 
@@ -70,7 +68,7 @@ def plot_end_to_end_simulation(transmitted_signal, received_signal, noise_signal
     axs[2].set_title('Received Signal')
     axs[2].grid(True)
 
-    axs[3].plot(x_noise, noise_signal)
+    axs[3].plot(x, noise_signal)
     axs[3].set_title('Noise Signal')
     axs[3].grid(True)
 
@@ -79,7 +77,7 @@ def plot_end_to_end_simulation(transmitted_signal, received_signal, noise_signal
     ax.plot(x, transmitted_signal, label='Transmitted Signal')
     ax.plot(x, noisy_signal, label='Noisy Signal')
     ax.step(x, received_signal, label='Received Signal')
-    ax.plot(x_noise, noise_signal, label='Noise Signal')
+    ax.plot(x, noise_signal, label='Noise Signal')
     ax.set_title('Transmitted, Noisy, Received, and Noise Signals')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
@@ -97,7 +95,7 @@ def get_final_results(receiver, filtered_signal):
 
 
 def simulate_with_limited_bandwidth_with_fft(voltage: float, interval: float,
-                                             first_frequency_components: int, signal_length: int = 1000,
+                                             first_frequency_components: int, signal_length: int,
                                              start: float = 0, end: float = 1e-5):
     """
     Simulates communication with limited bandwidth.
@@ -115,7 +113,7 @@ def simulate_with_limited_bandwidth_with_fft(voltage: float, interval: float,
     """
 
     transmitter, receiver, communication_channel, filtered_signal = (
-        init_run_limited_bandwidth_fft(voltage, interval, first_frequency_components, signal_length=1000, start=start, end=end))
+        init_run_limited_bandwidth_fft(voltage, interval, first_frequency_components, signal_length=signal_length, start=start, end=end))
 
     received_signal, signal, error_probability, noisy_signal = get_final_results(receiver, filtered_signal)
     noise_signal = noisy_signal - filtered_signal
@@ -125,8 +123,8 @@ def simulate_with_limited_bandwidth_with_fft(voltage: float, interval: float,
 def simulate_with_limited_bandwidth_without_fft(voltage, interval, first_frequency_components, signal_length=1000,
                                                 start: float = 0, end: float = 1e-5):
     transmitter, receiver, communication_channel, filtered_signal = (
-        init_run_limited_bandwidth_no_fft(voltage, interval, first_frequency_components, signal_length=signal_length,
-                                          start=start, end=end))
+        init_run_limited_bandwidth_no_fft(voltage, interval, first_frequency_components,
+                                          signal_length=signal_length, start=start, end=end))
 
     received_signal, signal, error_probability, noisy_signal = get_final_results(receiver, filtered_signal)
     noise_signal = noisy_signal - filtered_signal
@@ -180,15 +178,16 @@ def plot_error_for_v(voltage_vector):
 
 
 def plot_error_for_v_vector_with_limited_frequency(voltage_vector: np.ndarray, interval: float,
-                                                   first_frequency_components: int, signal_length: int = 1000,
-                                                   start: float = 0, end: float = 1e-5):
+                                                   first_frequency_components: int, signal_length: int,
+                                                   start: float, end: float):
     with_fft = {
         v: simulate_with_limited_bandwidth_with_fft(v, interval, first_frequency_components,
                                                     signal_length, start, end)[3]
         for v in voltage_vector
     }
     without_fft = {
-        v: simulate_with_limited_bandwidth_without_fft(v, interval, first_frequency_components, signal_length, start, end)[3]
+        v: simulate_with_limited_bandwidth_without_fft(v, interval, first_frequency_components,
+                                                       signal_length, start, end)[3]
         for v in voltage_vector
     }
     plt.figure(figsize=(8, 6))

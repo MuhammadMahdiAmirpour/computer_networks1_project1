@@ -28,7 +28,7 @@ class SignalProducer:
         Returns:
             numpy.ndarray: The alternating bit string values corresponding to the input values x.
         """
-        return self.generate_limited_frequency_signal(freq_num=1000, x=x)
+        return self.generate_limited_frequency_signal(freq_num=len(x), x=x)
 
     def generate_limited_frequency_signal(self, freq_num: int, x):
         return self.V * (4 / np.pi) * sum([(1/(2 * i + 1)) * np.sin(2 * np.pi * x * (2 * i + 1) / self.T) for i in range(freq_num)])

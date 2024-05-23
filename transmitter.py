@@ -22,10 +22,6 @@ class Transmitter:
         """
         Generates and transmits the bit string signal.
 
-        Args:
-            x_range (tuple, optional): The range of x values to transmit. Default is (0, 10).
-            num_points (int, optional): The number of points to transmit. Default is 1000.
-
         Returns:
             numpy.ndarray: The transmitted bit string signal.
         """
