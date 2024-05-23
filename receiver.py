@@ -10,6 +10,7 @@ class Receiver:
             V (float): The voltage level representing 1 and -V representing 0.
             T (float): The period of the transmitted signal.
         """
+        self.signal = None
         self.V = V
         self.T = T
         self.x = x
@@ -26,22 +27,20 @@ class Receiver:
         points_per_period = n * self.T / x_range / 2  # Calculate the number of points per period
         return points_per_period
 
-    def receive_and_sample(self, transmitted_signal):
-        """
-        Receives the signal, samples it at the middle of each bit interval, and reconstructs the original transmitted signal.
-        Also adds Gaussian white noise to the transmitted signal to obtain the noisy signal.
+    def receive_signal(self, signal_to_receive):
+        self.signal = signal_to_receive
 
-        Args:
-            transmitted_signal (numpy.ndarray): The transmitted signal.
-            num_points (int): The number of points to sample in each bit interval.
+    def process_signal(self):
+        """
+        Receives the signal, samples it at the middle of each bit interval, and reconstructs the original transmitted
+        signal. Also adds Gaussian white noise to the transmitted signal to obtain the noisy signal.
 
         Returns:
             tuple: A tuple containing the received signal and the noisy signal.
         """
         # Calculate the number of intervals based on the length of the signal and the period T
         num_intervals = int((self.x[-1] - self.x[0]) / self.T) * 2
-        received_signal = np.zeros(len(transmitted_signal))
-        noisy_signal = transmitted_signal + np.random.normal(0, 1, len(transmitted_signal))
+        received_signal = np.zeros(len(self.signal))
 
         # Calculate the number of points per bit interval
         points_per_interval = self.get_points_per_period()
@@ -53,8 +52,7 @@ class Receiver:
 
             # Sample the noisy signal at the middle of the bit interval
             sample_index = int(interval_start + points_per_interval // 4)
-            y_k = noisy_signal[sample_index]
-            print(y_k)
+            y_k = self.signal[sample_index]
 
             # Reconstruct the original transmitted signal value for the current bit interval
             if y_k > 0:
@@ -62,4 +60,4 @@ class Receiver:
             else:
                 received_signal[interval_start:interval_end] = -self.V
 
-        return received_signal, noisy_signal
+        return received_signal, self.signal
